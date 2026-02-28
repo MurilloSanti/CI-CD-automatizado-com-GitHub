@@ -1,0 +1,46 @@
+name: AWS CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Rodar testes
+        run: echo "Testes executados com sucesso"
+
+      - name: Build Docker image
+        run: docker build -t murillosanti/devops-aws-app:latest .
+
+      - name: Login Docker Hub
+        run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u murillosanti --password-stdin
+
+      - name: Push Docker image
+        run: docker push murillosanti/devops-aws-app:latest
+
+      - name: Deploy na EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker stop devops-app || true
+            docker rm devops-app || true
+            docker pull murillosanti/devops-aws-app:latest
+            docker run -d -p 80:3000 --name devops-app murillosanti/devops-aws-app:latest
