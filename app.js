@@ -7,7 +7,7 @@ const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
 app.get('/', (req, res) => {
-  res.send("🚀 CI/CD AWS funcionando!");
+  res.send("🚀 CI/CD AWS funcionando!- versão 2");
 });
 
 app.get('/metrics', async (req, res) => {
