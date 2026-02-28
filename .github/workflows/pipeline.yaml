@@ -25,16 +25,16 @@ jobs:
         run: echo "Testes executados com sucesso"
 
       - name: Build Docker image
-        run: docker build -t murillosanti/devops-aws-app:latest .
+        run: docker build -t murillocwb/devops-aws-app:latest .
 
-      - name: Login to Docker Hub
+      - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Push Docker image
-        run: docker push murillosanti/devops-aws-app:latest
+        run: docker push murillocwb/devops-aws-app:latest
 
       - name: Deploy na EC2
         uses: appleboy/ssh-action@master
@@ -45,5 +45,5 @@ jobs:
           script: |
             docker stop devops-app || true
             docker rm devops-app || true
-            docker pull murillosanti/devops-aws-app:latest
-            docker run -d -p 80:3000 --name devops-app --restart always murillosanti/devops-aws-app:latest
+            docker pull murillocwb/devops-aws-app:latest
+            docker run -d -p 80:3000 --name devops-app murillocwb/devops-aws-app:latest
